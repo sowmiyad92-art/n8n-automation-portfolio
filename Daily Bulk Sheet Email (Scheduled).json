@@ -1,0 +1,550 @@
+{
+  "name": "Daily Bulk Sheet Email (Scheduled)",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1s6q0x8DyweZqFO4wPIV0qkJgGy3jvWS18XTue0CwGKw",
+          "mode": "list",
+          "cachedResultName": "Mail Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s6q0x8DyweZqFO4wPIV0qkJgGy3jvWS18XTue0CwGKw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 809069815,
+          "mode": "list",
+          "cachedResultName": "EmailConfig",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s6q0x8DyweZqFO4wPIV0qkJgGy3jvWS18XTue0CwGKw/edit#gid=809069815"
+        },
+        "options": {}
+      },
+      "id": "091d4efe-fbf4-4c56-b251-dc305ea21d63",
+      "name": "Read Email Configuration",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        0,
+        864
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tDA9uKDhtZEHDPUp",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1s6q0x8DyweZqFO4wPIV0qkJgGy3jvWS18XTue0CwGKw",
+          "mode": "list",
+          "cachedResultName": "Mail Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s6q0x8DyweZqFO4wPIV0qkJgGy3jvWS18XTue0CwGKw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 886672710,
+          "mode": "list",
+          "cachedResultName": "EmailTemplate",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s6q0x8DyweZqFO4wPIV0qkJgGy3jvWS18XTue0CwGKw/edit#gid=886672710"
+        },
+        "options": {}
+      },
+      "id": "fb890e66-fbec-4883-b037-3b494669c78b",
+      "name": "Read Email Template",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        64,
+        1440
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tDA9uKDhtZEHDPUp",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "c7c1ee12-bff6-4fc6-b70a-73a9d14b5c4b",
+      "name": "Merge Config with Template",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        1264
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.Template1 }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": true
+            }
+          },
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "attachment1"
+            }
+          }
+        }
+      },
+      "id": "4b927f39-e710-489e-93c6-43b166baddcc",
+      "name": "Download Template 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        896,
+        1056
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RZao8oWmR90uFL5z",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.Template2 }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": true
+            }
+          },
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "attachment2"
+            }
+          }
+        }
+      },
+      "id": "5738f054-befb-4585-a823-9b7560d2b8db",
+      "name": "Download Template 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        896,
+        1216
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RZao8oWmR90uFL5z",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.Template3.replace('//export', '/export') }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": true
+            }
+          },
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "attachment3"
+            }
+          }
+        }
+      },
+      "id": "3cbb81e6-338a-4d8d-809a-913ee95d5d72",
+      "name": "Download Template 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        896,
+        1360
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "RZao8oWmR90uFL5z",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "id": "6184b900-59bd-4773-ac52-0f9b184f5e6c",
+      "name": "Combine All Files",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1152,
+        1216
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json[\"RecipientEmail\"] }} \n\n",
+        "subject": "={{ $json[\"Subject\"] || \"No Subject\" }}\n\n",
+        "message": "={{ $json.MessageBody ? $json.MessageBody.replace('{RecipientName}', $json.RecipientName || '').replace('{Subject}', $json.Subject || '').replace('{Day}', $now.format('dddd')).replace('{Date}', $now.format('MMM D, YYYY')) : 'No message template found' }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "attachment1"
+              },
+              {
+                "property": "attachment2"
+              },
+              {
+                "property": "attachment3"
+              }
+            ]
+          },
+          "ccList": "={{ $json.CC }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1792,
+        1216
+      ],
+      "id": "2661764f-8942-46ca-97b4-9682837e6655",
+      "name": "Send Email",
+      "webhookId": "3c5406b6-ec0a-438b-920d-6dc42fdf422a",
+      "alwaysOutputData": false,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4ZnDfd9w5X1DOl7p",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 0
+            }
+          ]
+        }
+      },
+      "id": "2953fbee-09fe-4cba-8710-830718388f50",
+      "name": "Daily Schedule1",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        1184
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": "={{ 10 }}",
+        "options": {}
+      },
+      "id": "baddbcff-d2e8-4486-92c1-5ebbaa436137",
+      "name": "Split In Batches1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "id": "cb836a6e-246d-4536-a0c6-abad05fdae0e",
+      "name": "Merge 1 & 2",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1168,
+        1024
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.Template1 }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "8ae3ebea-d26d-48e3-9546-874da52001a6",
+      "name": "Need Template 1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        624,
+        752
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.Template2 }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "de29b12e-a951-4eeb-9d76-0eee0382413a",
+      "name": "Need Template 2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        576,
+        992
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.Template3 }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "1ecb3f91-27c5-44a7-8970-f856e2ec2a94",
+      "name": "Need Template 3",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        608,
+        1392
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Read Email Configuration": {
+      "main": [
+        [
+          {
+            "node": "Need Template 1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Need Template 2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Need Template 3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Config with Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Template 1": {
+      "main": [
+        [
+          {
+            "node": "Merge 1 & 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Template 2": {
+      "main": [
+        [
+          {
+            "node": "Merge 1 & 2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Combine All Files": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Schedule1": {
+      "main": [
+        [
+          {
+            "node": "Read Email Configuration",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Email Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches1": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Email Template": {
+      "main": [
+        [
+          {
+            "node": "Merge Config with Template",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Config with Template": {
+      "main": [
+        [
+          {
+            "node": "Need Template 1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Need Template 2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Need Template 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Template 3": {
+      "main": [
+        [
+          {
+            "node": "Combine All Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge 1 & 2": {
+      "main": [
+        [
+          {
+            "node": "Combine All Files",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Need Template 1": {
+      "main": [
+        [
+          {
+            "node": "Download Template 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Need Template 2": {
+      "main": [
+        [
+          {
+            "node": "Download Template 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Need Template 3": {
+      "main": [
+        [
+          {
+            "node": "Download Template 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "87d9da1b-0197-40e0-8ce1-42e26ac992e0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "164e74a7fd177bc4a6e55832678446669b60e3bbf095ed06e8d0e872863ad807"
+  },
+  "id": "HGD7yBkWlYDznons",
+  "tags": []
+}

@@ -1,0 +1,712 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "139c5b55-ba5f-4706-bcd0-e98ac967616a",
+      "name": "Telegram Trigger",
+      "webhookId": "a982062b-903a-443a-bc7e-a20149958a09",
+      "credentials": {
+        "telegramApi": {
+          "id": "u1pWDUOn2lyAWNjp",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all input items\nconst items = $input.all();\n\n// Process the first item\nconst item = items[0];\nconst messageText = item.json.message?.text || '';\n\n// Regular expressions for different platforms\nconst urlPatterns = {\n  instagram: /https?:\\/\\/(?:www\\.)?instagram\\.com\\/(?:p|reel|tv)\\/[A-Za-z0-9_-]+\\/?/g,\n  linkedin: /https?:\\/\\/(?:www\\.)?linkedin\\.com\\/(?:posts|feed\\/update)\\/[A-Za-z0-9_-]+\\/?/g,\n  twitter: /https?:\\/\\/(?:www\\.)?(twitter\\.com|x\\.com)\\/[A-Za-z0-9_]+\\/status\\/[0-9]+\\/?/g,\n  facebook: /https?:\\/\\/(?:www\\.)?facebook\\.com\\/(?:share\\/[A-Za-z0-9]+\\/|[A-Za-z0-9._-]+\\/(?:posts|videos)\\/[0-9]+)\\/?/g,\n  deal: /https?:\\/\\/(?:www\\.)?c21media\\.net\\/[a-zA-Z0-9\\/_-]+/g\n};\n\n// Extract URLs from each platform\nconst instagramUrls = messageText.match(urlPatterns.instagram) || [];\nconst linkedinUrls = messageText.match(urlPatterns.linkedin) || [];\nconst twitterUrls = messageText.match(urlPatterns.twitter) || [];\nconst facebookUrls = messageText.match(urlPatterns.facebook) || [];\nconst dealUrls = messageText.match(urlPatterns.deal) || [];\n\n// Get the first URL from each platform (or empty string)\nconst instagramUrl = instagramUrls.length > 0 ? instagramUrls[0] : '';\nconst linkedinUrl = linkedinUrls.length > 0 ? linkedinUrls[0] : '';\nconst twitterUrl = twitterUrls.length > 0 ? twitterUrls[0] : '';\nconst facebookUrl = facebookUrls.length > 0 ? facebookUrls[0] : '';\nconst dealUrl = dealUrls.length > 0 ? dealUrls[0] : '';\n\n// Determine which platform was used\nlet platform = '';\nif (instagramUrl) platform = 'Instagram';\nelse if (linkedinUrl) platform = 'LinkedIn';\nelse if (twitterUrl) platform = 'Twitter';\nelse if (facebookUrl) platform = 'Facebook';\nelse if (dealUrl) platform = 'Deal';\n\n// Extract description by removing all URLs from the message\nlet description = messageText;\nconst allUrls = [\n  ...instagramUrls,\n  ...linkedinUrls,\n  ...twitterUrls,\n  ...facebookUrls,\n  ...dealUrls\n];\n\n// Remove each URL from the description\nallUrls.forEach(url => {\n  description = description.replace(url, '').trim();\n});\n\n// Clean up extra whitespace\ndescription = description.replace(/\\s+/g, ' ').trim();\n\n// Limit description to 500 characters to keep it manageable\nif (description.length > 500) {\n  description = description.substring(0, 497) + '...';\n}\n\n// Return the modified data\nreturn [{\n  json: {\n    ...item.json,\n    instagramUrl: instagramUrl,\n    linkedinUrl: linkedinUrl,\n    twitterUrl: twitterUrl,\n    facebookUrl: facebookUrl,\n    dealUrl: dealUrl,\n    platform: platform,\n    extractedUrl: instagramUrl || linkedinUrl || twitterUrl || facebookUrl || dealUrl || '',\n    description: description\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "ba7c285d-d98e-47bf-99a4-096f9bea164c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1YEbSjICVHliUoQydGtiPlEimVwMAmEPiPzYEVcBCjsQ",
+          "mode": "list",
+          "cachedResultName": "Space Name",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YEbSjICVHliUoQydGtiPlEimVwMAmEPiPzYEVcBCjsQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YEbSjICVHliUoQydGtiPlEimVwMAmEPiPzYEVcBCjsQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Column Name": "1",
+            "Message": "={{$json.message.text}}",
+            "Sender Name": "={{$json.message.from.first_name}}",
+            "User ID": "={{$json.message.from.id}}",
+            "Chat ID": "={{$json.message.chat.id}}",
+            "Timestamp": "={{$json.message.date}}",
+            "Status": "=Pending",
+            "Instagram URL": "={{$json.instagramUrl}}",
+            "Message ID": "={{$json.message.message_id}}",
+            "LinkedIn URL": "={{$json.linkedinUrl}}",
+            "Twitter URL  ": "={{ $json.twitterUrl }}",
+            "Facebook URL ": "={{ $json.facebookUrl }}",
+            "Extracted URL": "={{ $json.extractedUrl }}",
+            "Deal URL": "={{ $json.dealUrl }}",
+            "Description": "={{$json.description}}"
+          },
+          "matchingColumns": [
+            "Column Name"
+          ],
+          "schema": [
+            {
+              "id": "Column Name",
+              "displayName": "Column Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sender Name",
+              "displayName": "Sender Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "User ID",
+              "displayName": "User ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Chat ID",
+              "displayName": "Chat ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Instagram URL",
+              "displayName": "Instagram URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "LinkedIn URL",
+              "displayName": "LinkedIn URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Twitter URL  ",
+              "displayName": "Twitter URL  ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Facebook URL ",
+              "displayName": "Facebook URL ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Extracted URL",
+              "displayName": "Extracted URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Deal URL",
+              "displayName": "Deal URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Message ID",
+              "displayName": "Message ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reply",
+              "displayName": "Reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reply Status",
+              "displayName": "Reply Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        96
+      ],
+      "id": "4a62cc57-f789-4f7b-8fbd-97a79567bffb",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tDA9uKDhtZEHDPUp",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f81b383f-93c1-43cc-9813-f119c793e9a0",
+              "leftValue": "={{$json[\"Reply\"]}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "392224c1-4b6b-4c4a-96dd-22fb0681cef4",
+              "leftValue": "={{$json[\"Reply Status\"]}}",
+              "rightValue": "Sent",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        496
+      ],
+      "id": "e2891b6f-3382-496c-8a8d-424b2f09811a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot7831144060:AAG98vs2wJr3ilSq7i-5a0WLEto03HDJr1Y/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": {{$json[\"Chat ID\"]}},\n  \"text\": \"{{$json[\"Reply\"]}}\",\n  \"reply_to_message_id\": {{$json[\"Message ID\"]}}\n}\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        464,
+        480
+      ],
+      "id": "7709467a-fb57-4a11-acd7-eced4a8b2b1a",
+      "name": "HTTP Request",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        512
+      ],
+      "id": "11ff9e50-5998-49a4-b721-efe8891243c4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1YEbSjICVHliUoQydGtiPlEimVwMAmEPiPzYEVcBCjsQ",
+          "mode": "list",
+          "cachedResultName": "Space Name",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YEbSjICVHliUoQydGtiPlEimVwMAmEPiPzYEVcBCjsQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YEbSjICVHliUoQydGtiPlEimVwMAmEPiPzYEVcBCjsQ/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Reply Status"
+            }
+          ]
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically"
+            }
+          },
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -32,
+        496
+      ],
+      "id": "cd4ff14c-9e58-45e2-8d1a-48d4d13de2db",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tDA9uKDhtZEHDPUp",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "f8249922-1367-4b4d-af04-b350efa514da",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -288,
+        720
+      ],
+      "id": "db0e16dd-50d2-41bf-a5e1-ebae7814f256",
+      "name": "Webhook",
+      "webhookId": "f8249922-1367-4b4d-af04-b350efa514da"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1YEbSjICVHliUoQydGtiPlEimVwMAmEPiPzYEVcBCjsQ",
+          "mode": "list",
+          "cachedResultName": "Space Name",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YEbSjICVHliUoQydGtiPlEimVwMAmEPiPzYEVcBCjsQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YEbSjICVHliUoQydGtiPlEimVwMAmEPiPzYEVcBCjsQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Message ID": "=={{$json[\"Message ID\"]}}",
+            "Reply Status": "Sent",
+            "Chat ID": "=7731655447"
+          },
+          "matchingColumns": [
+            "Message ID"
+          ],
+          "schema": [
+            {
+              "id": "Column Name",
+              "displayName": "Column Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sender Name",
+              "displayName": "Sender Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "User ID",
+              "displayName": "User ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Chat ID",
+              "displayName": "Chat ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Instagram URL",
+              "displayName": "Instagram URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn URL",
+              "displayName": "LinkedIn URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Twitter URL  ",
+              "displayName": "Twitter URL  ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Facebook URL ",
+              "displayName": "Facebook URL ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Extracted URL",
+              "displayName": "Extracted URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Deal URL",
+              "displayName": "Deal URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message ID",
+              "displayName": "Message ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reply",
+              "displayName": "Reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reply Status",
+              "displayName": "Reply Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        784,
+        416
+      ],
+      "id": "6ef83fb0-4164-4784-87c6-743861d80ce7",
+      "name": "Sheet to Telegram Reply",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tDA9uKDhtZEHDPUp",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Sheet to Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "de4dc09a-5ce2-4126-8663-3d822326f42d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "164e74a7fd177bc4a6e55832678446669b60e3bbf095ed06e8d0e872863ad807"
+  },
+  "id": "gVmJejFep4C7lSTh",
+  "tags": []
+}

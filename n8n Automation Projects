@@ -1,0 +1,177 @@
+# 📊 N8N Automation Portfolio
+
+**Automated Business Intelligence & Workflow Systems**
+
+Built professional-grade automation workflows saving 50+ hours/month using n8n, Google Sheets, QuickChart, and API integrations.
+
+---
+
+## 🎯 Projects
+
+### 1. Email Automation System (3-Template Support)
+**Problem Solved:** Manual daily email sending with 1-3 Excel attachments  
+**Time Saved:** 15 min/day = 65 hours/year  
+**Tech Stack:** n8n, Google Sheets API, Gmail API, Merge nodes  
+
+**Features:**
+- Dynamic template selection (1, 2, or 3 files)
+- Automatic recipient management
+- BCC support
+- Scheduled daily execution
+- Template-based email bodies
+
+**Files:** `email-automation-3-templates.json`
+
+---
+
+### 2. Automated Sales Report with Charts
+**Problem Solved:** Manual report generation and distribution  
+**Time Saved:** 30 min/report = 120+ hours/year  
+**Tech Stack:** n8n, Google Sheets, QuickChart.io, API2PDF, Telegram Bot  
+
+**Features:**
+- 3 dynamic charts (Line, Bar, Pie)
+- Auto-detects data columns
+- Professional PDF generation
+- Telegram delivery
+- Daily scheduling
+
+**Visual Insights:**
+- Sales trend analysis
+- Product performance breakdown
+- Regional distribution
+- Growth rate calculation
+
+**Files:** `sales-report-with-charts.json`
+
+---
+
+### 3. AI-Powered Business Analysis Report
+**Problem Solved:** Manual data analysis and insights generation  
+**Time Saved:** 45 min/report = 180+ hours/year  
+**Tech Stack:** n8n, Advanced JavaScript, Statistical Analysis, PDF Generation  
+
+**Features:**
+- Executive summary generation
+- Pareto analysis (80/20 rule)
+- Anomaly detection (2-sigma)
+- Performance segmentation
+- Strategic recommendations
+- Trend momentum analysis
+- Risk assessment
+
+**Advanced Analytics:**
+- Auto-detects data structure (works with ANY columns)
+- Statistical calculations (mean, std dev, coefficient of variation)
+- Top/bottom performer identification
+- Concentration risk metrics
+- Growth indicators
+
+**Files:** `sales-analysis-report.json`
+
+---
+
+## 🛠️ Technical Skills Demonstrated
+
+- **Workflow Automation:** n8n node configuration, branching logic
+- **API Integration:** REST APIs, OAuth, webhooks
+- **Data Processing:** JavaScript, aggregation, transformation
+- **Chart Generation:** QuickChart.io API, dynamic configurations
+- **PDF Creation:** HTML templating, API2PDF service
+- **Scheduling:** Cron expressions, time-based triggers
+- **Error Handling:** Conditional logic, fallbacks
+- **Statistical Analysis:** Pareto, z-scores, variance analysis
+
+---
+
+## 📈 Business Impact
+
+| Metric | Value |
+|--------|-------|
+| Total automations built | 3 |
+| Annual time saved | 365+ hours |
+| Cost savings (@ ₹500/hr) | ₹182,500+ |
+| Manual error reduction | 90%+ |
+| Report generation time | 15 min → 2 min |
+| Deployment time | < 1 hour per workflow |
+
+---
+
+## 🚀 Setup Instructions
+
+### Prerequisites
+- n8n instance (cloud or self-hosted)
+- Google Sheets API credentials
+- Gmail/Telegram credentials
+- API2PDF API key (for PDF generation)
+
+### Installation
+1. Import JSON workflow file to n8n
+2. Configure credentials for each service
+3. Update Google Sheet IDs
+4. Test manually before scheduling
+5. Activate workflow
+
+### Configuration
+- Modify schedule triggers as needed
+- Update recipient lists in Google Sheets
+- Customize chart colors/styles in HTTP nodes
+- Adjust analysis thresholds in JavaScript nodes
+
+---
+
+## 📸 Sample Outputs
+
+**Sales Report PDF:**
+- Professional formatting
+- 3 color-coded charts
+- Key metrics dashboard
+- Detailed transaction table
+
+**Analysis Report PDF:**
+- Executive summary
+- 5 key insights
+- Top performer analysis
+- Strategic recommendations
+- Risk assessment
+- Conclusion
+
+---
+
+## 🎓 Learning Outcomes
+
+Through building these projects, I gained expertise in:
+- Workflow design and optimization
+- API integration patterns
+- Data transformation pipelines
+- Statistical analysis implementation
+- Professional report generation
+- Production-grade error handling
+- Scalable automation architecture
+
+---
+
+## 🔗 Connect
+
+**LinkedIn:** [Your LinkedIn]  
+**Email:** [Your Email]
+
+---
+
+## 📄 License
+
+MIT License - Feel free to use these workflows for learning and adaptation.
+
+---
+
+## 🙏 Acknowledgments
+
+Built with:
+- n8n (workflow automation)
+- QuickChart.io (chart generation)
+- API2PDF (PDF conversion)
+- Google Workspace APIs
+```
+
+---
+

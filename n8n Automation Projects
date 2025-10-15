@@ -1,176 +1,252 @@
 # 📊 N8N Automation Portfolio
 
-**Automated Business Intelligence & Workflow Systems**
+> Automated Business Intelligence & Workflow Systems
 
-Built professional-grade automation workflows saving 50+ hours/month using n8n, Google Sheets, QuickChart, and API integrations.
-
----
-
-## 🎯 Projects
-
-### 1. Email Automation System (3-Template Support)
-**Problem Solved:** Manual daily email sending with 1-3 Excel attachments  
-**Time Saved:** 15 min/day = 65 hours/year  
-**Tech Stack:** n8n, Google Sheets API, Gmail API, Merge nodes  
-
-**Features:**
-- Dynamic template selection (1, 2, or 3 files)
-- Automatic recipient management
-- BCC support
-- Scheduled daily execution
-- Template-based email bodies
-
-**Files:** `email-automation-3-templates.json`
+**Quick Stats:** 3 Workflows | 365+ Hours Saved Annually | ₹182,500+ Cost Savings
 
 ---
 
-### 2. Automated Sales Report with Charts
-**Problem Solved:** Manual report generation and distribution  
-**Time Saved:** 30 min/report = 120+ hours/year  
-**Tech Stack:** n8n, Google Sheets, QuickChart.io, API2PDF, Telegram Bot  
+## 🎯 Projects Overview
 
-**Features:**
-- 3 dynamic charts (Line, Bar, Pie)
-- Auto-detects data columns
-- Professional PDF generation
-- Telegram delivery
-- Daily scheduling
+| Project | Time Saved | Complexity | Status |
+|---------|------------|------------|--------|
+| Email Automation | 65 hrs/year | ⭐⭐ | ✅ Production |
+| Charts Report | 120 hrs/year | ⭐⭐⭐ | ✅ Production |
+| Analysis Report | 180 hrs/year | ⭐⭐⭐⭐ | ✅ Production |
 
-**Visual Insights:**
-- Sales trend analysis
-- Product performance breakdown
-- Regional distribution
-- Growth rate calculation
+Manual Batch Reply System
+Overview 
+Captures client messages 24/7
+Extracts URLs from Instagram, LinkedIn, Twitter, Facebook (new share format), and article sites
+Saves message description (what you/client writes)
+Stores all metadata (Chat ID, Message ID, timestamps)
+You add replies in bulk (10, 20, 50+ at once)
+Click button in Google Sheet
+All pending replies sent simultaneously
+Threaded to original messages
+Status updates to "Sent" automatically
 
-**Files:** `sales-report-with-charts.json`
-
----
-
-### 3. AI-Powered Business Analysis Report
-**Problem Solved:** Manual data analysis and insights generation  
-**Time Saved:** 45 min/report = 180+ hours/year  
-**Tech Stack:** n8n, Advanced JavaScript, Statistical Analysis, PDF Generation  
-
-**Features:**
-- Executive summary generation
-- Pareto analysis (80/20 rule)
-- Anomaly detection (2-sigma)
-- Performance segmentation
-- Strategic recommendations
-- Trend momentum analysis
-- Risk assessment
-
-**Advanced Analytics:**
-- Auto-detects data structure (works with ANY columns)
-- Statistical calculations (mean, std dev, coefficient of variation)
-- Top/bottom performer identification
-- Concentration risk metrics
-- Growth indicators
-
-**Files:** `sales-analysis-report.json`
 
 ---
 
-## 🛠️ Technical Skills Demonstrated
+## 📧 Project 1: Email Automation System
 
-- **Workflow Automation:** n8n node configuration, branching logic
-- **API Integration:** REST APIs, OAuth, webhooks
-- **Data Processing:** JavaScript, aggregation, transformation
-- **Chart Generation:** QuickChart.io API, dynamic configurations
-- **PDF Creation:** HTML templating, API2PDF service
-- **Scheduling:** Cron expressions, time-based triggers
-- **Error Handling:** Conditional logic, fallbacks
-- **Statistical Analysis:** Pareto, z-scores, variance analysis
+### Overview
+Automated daily email distribution with 1-3 dynamic attachments, reducing manual work from 15 minutes to 2 minutes per execution.
+
+### Workflow Diagram
+![Email Workflow](screenshots/email-automation/workflow-overview.png)
+
+### Key Features
+- ✅ Dynamic template selection (1, 2, or 3 files)
+- ✅ Google Sheets integration
+- ✅ Gmail API automation
+- ✅ BCC support
+- ✅ Daily scheduling
+
+### Sample Output
+![Email Received](screenshots/email-automation/email-received.png)
+
+### Technical Stack
+- **Platform:** n8n
+- **APIs:** Google Sheets, Gmail
+- **Nodes Used:** Schedule, Read Sheets, Merge, Send Email
+- **Execution Time:** ~10 seconds
+
+### Download
+📥 [View Workflow JSON](workflows/email-automation.json)
+
+---
+
+## 📊 Project 2: Sales Report with Charts
+
+### Overview
+Automated generation of visual sales reports with 3 dynamic charts, delivered via Telegram daily.
+
+### Workflow Diagram
+![Charts Workflow](screenshots/sales-charts-report/workflow-nodes.png)
+
+### Sample Report (PDF Output)
+![Report Page 1](screenshots/sales-charts-report/pdf-page1.png)
+![Report Page 2](screenshots/sales-charts-report/pdf-page2.png)
+
+### Key Features
+- ✅ 3 chart types (Line, Bar, Pie)
+- ✅ QuickChart.io integration
+- ✅ PDF generation via API2PDF
+- ✅ Telegram bot delivery
+- ✅ Auto-detects data columns
+
+### Charts Generated
+| Chart Type | Purpose | Size |
+|------------|---------|------|
+| Line Chart | Trend analysis | 1000x500px |
+| Bar Chart | Product performance | 1000x500px |
+| Pie Chart | Regional distribution | 1000x500px |
+
+### Download
+📥 [View Workflow JSON](workflows/sales-report-charts.json)
+
+---
+
+## 🎯 Project 3: AI-Powered Analysis Report
+
+### Overview
+Advanced statistical analysis with executive summaries, Pareto analysis, anomaly detection, and strategic recommendations.
+
+### Workflow Diagram
+![Analysis Workflow](screenshots/sales-analysis-report/workflow-overview.png)
+
+### Sample Analysis Report
+![Executive Summary](screenshots/sales-analysis-report/analysis-pdf.png)
+![Key Insights](screenshots/sales-analysis-report/insights-section.png)
+
+### Advanced Features
+- ✅ **Executive Summary** - Auto-generated business overview
+- ✅ **Pareto Analysis** - 80/20 rule calculations
+- ✅ **Anomaly Detection** - Z-score based outlier identification
+- ✅ **Performance Segmentation** - High/Medium/Low categorization
+- ✅ **Concentration Risk** - Market share analysis
+- ✅ **Strategic Recommendations** - Data-driven action items
+
+### Statistical Methods Used
+- Mean, Standard Deviation
+- Coefficient of Variation
+- Z-Score Analysis (2-sigma threshold)
+- Pareto Principle
+- Growth Rate Calculations
+
+### Download
+📥 [View Workflow JSON](workflows/sales-analysis.json)
+
+---
+
+## 🛠️ Installation & Setup
+
+### Prerequisites
+```
+- n8n (cloud or self-hosted)
+- Google Sheets API credentials
+- Gmail/Telegram API credentials
+- API2PDF API key
+```
+
+### Quick Start
+1. Import JSON workflow to n8n
+2. Configure API credentials
+3. Update Google Sheet IDs in nodes
+4. Test execution manually
+5. Enable schedule trigger
+
+### Configuration Tips
+- Schedule: Modify cron expression in Schedule Trigger node
+- Recipients: Update in Google Sheets (no code changes needed!)
+- Chart sizes: Change width/height in HTTP Request URLs
+- PDF format: Adjust HTML/CSS in Code nodes
 
 ---
 
 ## 📈 Business Impact
 
-| Metric | Value |
-|--------|-------|
-| Total automations built | 3 |
-| Annual time saved | 365+ hours |
-| Cost savings (@ ₹500/hr) | ₹182,500+ |
-| Manual error reduction | 90%+ |
-| Report generation time | 15 min → 2 min |
-| Deployment time | < 1 hour per workflow |
+### Time Savings Breakdown
+| Task | Before | After | Saved |
+|------|--------|-------|-------|
+| Email sending | 15 min | 2 min | 13 min/day |
+| Chart creation | 20 min | 0 min | 20 min/report |
+| Data analysis | 30 min | 0 min | 30 min/report |
+| **Total Annual** | - | - | **365+ hours** |
+
+### ROI Calculation
+```
+Annual time saved: 365 hours
+Average hourly rate: ₹500
+Annual cost savings: ₹182,500
+Setup time investment: 15 hours
+ROI: 2,333%
+```
 
 ---
 
-## 🚀 Setup Instructions
+## 🎓 Technical Skills Demonstrated
 
-### Prerequisites
-- n8n instance (cloud or self-hosted)
-- Google Sheets API credentials
-- Gmail/Telegram credentials
-- API2PDF API key (for PDF generation)
+**Workflow Automation:**
+- Node configuration and orchestration
+- Conditional logic and branching
+- Error handling and fallbacks
+- Schedule management
 
-### Installation
-1. Import JSON workflow file to n8n
-2. Configure credentials for each service
-3. Update Google Sheet IDs
-4. Test manually before scheduling
-5. Activate workflow
+**API Integration:**
+- REST API calls
+- OAuth authentication
+- Webhook configuration
+- Rate limiting handling
 
-### Configuration
-- Modify schedule triggers as needed
-- Update recipient lists in Google Sheets
-- Customize chart colors/styles in HTTP nodes
-- Adjust analysis thresholds in JavaScript nodes
+**Data Processing:**
+- JavaScript programming
+- Data aggregation and transformation
+- JSON manipulation
+- Statistical calculations
 
----
+**Advanced Analytics:**
+- Pareto analysis implementation
+- Anomaly detection algorithms
+- Performance segmentation
+- Risk assessment metrics
 
-## 📸 Sample Outputs
-
-**Sales Report PDF:**
-- Professional formatting
-- 3 color-coded charts
-- Key metrics dashboard
-- Detailed transaction table
-
-**Analysis Report PDF:**
-- Executive summary
-- 5 key insights
-- Top performer analysis
-- Strategic recommendations
-- Risk assessment
-- Conclusion
+**Report Generation:**
+- HTML templating
+- CSS styling for PDF
+- Dynamic chart generation
+- Multi-format output (PDF, Excel)
 
 ---
 
-## 🎓 Learning Outcomes
+## 📸 Screenshots Gallery
 
-Through building these projects, I gained expertise in:
-- Workflow design and optimization
-- API integration patterns
-- Data transformation pipelines
-- Statistical analysis implementation
-- Professional report generation
-- Production-grade error handling
-- Scalable automation architecture
+<details>
+<summary>Click to expand full gallery</summary>
+
+### Email Automation
+![Workflow](screenshots/email-automation/workflow-overview.png)
+![Email](screenshots/email-automation/email-received.png)
+
+### Charts Report
+![PDF Page 1](screenshots/sales-charts-report/pdf-page1.png)
+![PDF Page 2](screenshots/sales-charts-report/pdf-page2.png)
+
+### Analysis Report
+![Analysis](screenshots/sales-analysis-report/analysis-pdf.png)
+![Insights](screenshots/sales-analysis-report/insights-section.png)
+
+</details>
 
 ---
 
-## 🔗 Connect
+## 🔗 Connect With Me
 
-**LinkedIn:** [Your LinkedIn]  
-**Email:** [Your Email]
+**LinkedIn:** [Your LinkedIn Profile]  
+**Email:** yourname@email.com  
+**Portfolio:** [Your Website]
 
 ---
 
 ## 📄 License
 
-MIT License - Feel free to use these workflows for learning and adaptation.
+MIT License - Feel free to use and adapt these workflows for your own learning and projects.
 
 ---
 
 ## 🙏 Acknowledgments
 
 Built with:
-- n8n (workflow automation)
-- QuickChart.io (chart generation)
-- API2PDF (PDF conversion)
-- Google Workspace APIs
+- **n8n** - Workflow automation platform
+- **QuickChart.io** - Chart generation API
+- **API2PDF** - PDF conversion service
+- **Google Workspace APIs** - Sheets, Gmail integration
+
+---
+
+**⭐ Star this repo if you found it helpful!**
 ```
 
 ---

@@ -1,0 +1,693 @@
+{
+  "name": "Corrected Report set up",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        -48
+      ],
+      "id": "99dbaa1e-06cf-4347-9d5d-4337f7fa24f8",
+      "name": "Schedule Trigger3"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1a-B4tKg7HNzuUWILzBeX8XY91V1sdKzIpSsgjx6qV4s",
+          "mode": "list",
+          "cachedResultName": "SalesData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a-B4tKg7HNzuUWILzBeX8XY91V1sdKzIpSsgjx6qV4s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1516036363,
+          "mode": "list",
+          "cachedResultName": "SalesData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a-B4tKg7HNzuUWILzBeX8XY91V1sdKzIpSsgjx6qV4s/edit#gid=1516036363"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        -48
+      ],
+      "id": "2376f402-df07-437a-aa9e-fd20daf5a8ef",
+      "name": "Get row(s) in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tDA9uKDhtZEHDPUp",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all items from previous node\nconst items = $input.all();\n\n// Calculate totals\nlet totalSales = 0;\nlet totalQuantity = 0;\nlet salesSum = 0;\nlet count = 0;\n\n// Process each item\nitems.forEach(item => {\n  const sales = parseFloat(item.json.Sales) || 0;\n  const quantity = parseFloat(item.json.Quantity) || 0;\n  \n  totalSales += sales;\n  totalQuantity += quantity;\n  salesSum += sales;\n  count++;\n});\n\n// Calculate average\nconst avgSales = count > 0 ? salesSum / count : 0;\n\n// Return aggregated data\nreturn {\n  json: {\n    totalSales: totalSales,\n    totalQty: totalQuantity,\n    avgSales: avgSales,\n    recordCount: count,\n    allItems: items.map(i => i.json) // Keep all items for later use\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        752,
+        -48
+      ],
+      "id": "98c9f254-bdbf-40ed-8ece-dcc7841aedcc",
+      "name": "Calculate Totals3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all items from Google Sheets\nconst allItems = $('Get row(s) in sheet3').all();\n\n// Get the calculated totals from previous node\nconst totals = $input.first().json;\n\n// 1. PREPARE DATA FOR LINE CHART (Sales Trend by Month)\nconst salesByMonth = {};\nallItems.forEach(item => {\n  const month = item.json.Month || 'Unknown';\n  const sales = parseFloat(item.json.Sales) || 0;\n  \n  if (!salesByMonth[month]) {\n    salesByMonth[month] = 0;\n  }\n  salesByMonth[month] += sales;\n});\n\nconst monthLabels = Object.keys(salesByMonth);\nconst monthSales = Object.values(salesByMonth);\n\n\n// 2. PREPARE DATA FOR BAR CHART (Sales by Product)\nconst salesByProduct = {};\nallItems.forEach(item => {\n  const product = item.json.Product || 'Unknown';\n  const sales = parseFloat(item.json.Sales) || 0;\n  \n  if (!salesByProduct[product]) {\n    salesByProduct[product] = 0;\n  }\n  salesByProduct[product] += sales;\n});\n\nconst productLabels = Object.keys(salesByProduct);\nconst productSales = Object.values(salesByProduct);\n\n\n// 3. PREPARE DATA FOR PIE CHART (Sales by Region)\nconst salesByRegion = {};\nallItems.forEach(item => {\n  const region = item.json.Region || 'Unknown';\n  const sales = parseFloat(item.json.Sales) || 0;\n  \n  if (!salesByRegion[region]) {\n    salesByRegion[region] = 0;\n  }\n  salesByRegion[region] += sales;\n});\n\nconst regionLabels = Object.keys(salesByRegion);\nconst regionSales = Object.values(salesByRegion);\n\n\n// Return all data for charts\nreturn {\n  json: {\n    // Chart data\n    lineChart: {\n      labels: monthLabels,\n      data: monthSales\n    },\n    barChart: {\n      labels: productLabels,\n      data: productSales\n    },\n    pieChart: {\n      labels: regionLabels,\n      data: regionSales\n    },\n    // Summary data from previous node\n    totalSales: totals.totalSales || 0,\n    avgSales: totals.avgSales || 0,\n    recordCount: totals.recordCount || 0,\n    // All items for table\n    allItems: allItems.map(i => i.json)\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        -48
+      ],
+      "id": "48d9205d-7af0-4f12-b6bc-58101e2d98c3",
+      "name": "Prepare Chart Data3"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2064,
+        144
+      ],
+      "id": "91172b0b-5f06-4ac7-8bcf-02d6589c4659",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Prepare Chart Data node\nconst data = $('Prepare Chart Data3').first().json;\n\n// Calculate insights\nconst productSales = {};\ndata.allItems.forEach(item => {\n  const product = item.Product || 'Unknown';\n  productSales[product] = (productSales[product] || 0) + parseFloat(item.Sales || 0);\n});\nconst topProduct = Object.keys(productSales).reduce((a, b) => productSales[a] > productSales[b] ? a : b, '');\nconst topProductSales = productSales[topProduct];\n\nconst regionSales = {};\ndata.allItems.forEach(item => {\n  const region = item.Region || 'Unknown';\n  regionSales[region] = (regionSales[region] || 0) + parseFloat(item.Sales || 0);\n});\nconst topRegion = Object.keys(regionSales).reduce((a, b) => regionSales[a] > regionSales[b] ? a : b, '');\nconst topRegionSales = regionSales[topRegion];\n\n// Month-over-month growth (if you have previous month data)\nconst monthSales = data.lineChart.data || [];\nconst currentMonth = monthSales[monthSales.length - 1] || 0;\nconst previousMonth = monthSales[monthSales.length - 2] || 0;\nconst growth = previousMonth > 0 ? ((currentMonth - previousMonth) / previousMonth * 100).toFixed(1) : 0;\n\n// Get the merged item with binary data\nconst mergedItem = $input.first();\n\n// For n8n Cloud with filesystem storage\nconst lineChartBinary = await this.helpers.getBinaryDataBuffer(0, 'lineChartImage');\nconst barChartBinary = await this.helpers.getBinaryDataBuffer(0, 'barChartImage');\nconst pieChartBinary = await this.helpers.getBinaryDataBuffer(0, 'pieChartImage');\n\nconst lineChartBase64 = lineChartBinary.toString('base64');\nconst barChartBase64 = barChartBinary.toString('base64');\nconst pieChartBase64 = pieChartBinary.toString('base64');\n\n// Build HTML\nconst html = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    * { margin: 0; padding: 0; box-sizing: border-box; }\n    body { \n      font-family: 'Segoe UI', Arial, sans-serif; \n      background: #f0f2f5;\n      padding: 20px;\n    }\n    .container {\n      max-width: 1200px;\n      margin: 0 auto;\n      background: white;\n      border-radius: 12px;\n      overflow: hidden;\n      box-shadow: 0 4px 6px rgba(0,0,0,0.1);\n    }\n    .header {\n      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n      color: white;\n      padding: 30px;\n      text-align: center;\n    }\n    .header h1 {\n      font-size: 32px;\n      margin-bottom: 10px;\n    }\n    .header p {\n      font-size: 16px;\n      opacity: 0.9;\n    }\n    .metrics {\n      display: grid;\n      grid-template-columns: repeat(4, 1fr);\n      gap: 20px;\n      padding: 30px;\n      background: #f8f9fa;\n    }\n    .metric-card {\n      background: white;\n      padding: 20px;\n      border-radius: 8px;\n      text-align: center;\n      box-shadow: 0 2px 4px rgba(0,0,0,0.05);\n      border-left: 4px solid #667eea;\n    }\n    .metric-value {\n      font-size: 28px;\n      font-weight: bold;\n      color: #667eea;\n      margin-bottom: 5px;\n    }\n    .metric-label {\n      font-size: 14px;\n      color: #6c757d;\n      text-transform: uppercase;\n      letter-spacing: 0.5px;\n    }\n    .insights-section {\n      padding: 30px;\n      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);\n    }\n    .insights-title {\n      font-size: 24px;\n      color: #333;\n      margin-bottom: 20px;\n      font-weight: 600;\n    }\n    .insights-grid {\n      display: grid;\n      grid-template-columns: repeat(3, 1fr);\n      gap: 20px;\n    }\n    .insight-card {\n      background: white;\n      padding: 20px;\n      border-radius: 8px;\n      box-shadow: 0 2px 8px rgba(0,0,0,0.1);\n    }\n    .insight-icon {\n      font-size: 32px;\n      margin-bottom: 10px;\n    }\n    .insight-title {\n      font-size: 14px;\n      color: #6c757d;\n      text-transform: uppercase;\n      margin-bottom: 8px;\n      font-weight: 600;\n    }\n    .insight-value {\n      font-size: 24px;\n      color: #667eea;\n      font-weight: bold;\n      margin-bottom: 5px;\n    }\n    .insight-subtext {\n      font-size: 12px;\n      color: #999;\n    }\n    .growth-positive {\n      color: #4caf50;\n    }\n    .growth-negative {\n      color: #f44336;\n    }\n    .charts-section {\n      padding: 30px;\n    }\n    .chart-container {\n      margin-bottom: 30px;\n      background: #f8f9fa;\n      padding: 20px;\n      border-radius: 8px;\n    }\n    .chart-container h2 {\n      color: #333;\n      margin-bottom: 15px;\n      font-size: 20px;\n    }\n    .chart-container img {\n      width: 100%;\n      max-width: 100%;\n      height: auto;\n      border-radius: 8px;\n      box-shadow: 0 2px 4px rgba(0,0,0,0.1);\n      display: block;\n    }\n    .two-charts {\n      display: grid;\n      grid-template-columns: 1.5fr 1fr;\n      gap: 20px;\n    }\n    .table-wrapper {\n      overflow-x: auto;\n      padding: 0 30px 30px;\n    }\n    table {\n      width: 100%;\n      min-width: 1000px;\n      border-collapse: collapse;\n      margin: 30px 0;\n      background: white;\n      border-radius: 8px;\n      overflow: hidden;\n      table-layout: fixed;\n    }\n    th {\n      background: #667eea;\n      color: white;\n      padding: 12px 10px;\n      text-align: left;\n      font-weight: 600;\n      white-space: nowrap;\n      font-size: 12px;\n    }\n    th:nth-child(1) { width: 12%; }\n    th:nth-child(2) { width: 15%; }\n    th:nth-child(3) { width: 15%; }\n    th:nth-child(4) { width: 10%; }\n    th:nth-child(5) { width: 12%; }\n    th:nth-child(6) { width: 16%; }\n    td {\n      padding: 10px 8px;\n      border-bottom: 1px solid #e9ecef;\n      white-space: nowrap;\n      font-size: 11px;\n      overflow: hidden;\n      text-overflow: ellipsis;\n    }\n    tr:hover {\n      background: #f8f9fa;\n    }\n    tr:last-child td {\n      border-bottom: none;\n    }\n    .footer {\n      background: #f8f9fa;\n      padding: 20px;\n      text-align: center;\n      color: #6c757d;\n      font-size: 12px;\n      border-top: 1px solid #e9ecef;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <!-- Header -->\n    <div class=\"header\">\n      <h1>📊 Sales Performance Report</h1>\n      <p>Generated on ${new Date().toLocaleString('en-IN', { \n        dateStyle: 'full', \n        timeStyle: 'short' \n      })}</p>\n    </div>\n    \n    <!-- Metrics Summary -->\n    <div class=\"metrics\">\n      <div class=\"metric-card\">\n        <div class=\"metric-value\">₹${Math.round(data.totalSales || 0).toLocaleString('en-IN')}</div>\n        <div class=\"metric-label\">Total Sales</div>\n      </div>\n      <div class=\"metric-card\">\n        <div class=\"metric-value\">${data.totalQty || 0}</div>\n        <div class=\"metric-label\">Total Quantity</div>\n      </div>\n      <div class=\"metric-card\">\n        <div class=\"metric-value\">₹${Math.round(data.avgSales || 0).toLocaleString('en-IN')}</div>\n        <div class=\"metric-label\">Average Sale</div>\n      </div>\n      <div class=\"metric-card\">\n        <div class=\"metric-value\">${data.recordCount || 0}</div>\n        <div class=\"metric-label\">Total Transactions</div>\n      </div>\n    </div>\n    \n    <!-- Key Insights Section -->\n    <div class=\"insights-section\">\n      <h2 class=\"insights-title\">🎯 Key Insights</h2>\n      <div class=\"insights-grid\">\n        <div class=\"insight-card\">\n          <div class=\"insight-icon\">🏆</div>\n          <div class=\"insight-title\">Top Performing Product</div>\n          <div class=\"insight-value\">${topProduct}</div>\n          <div class=\"insight-subtext\">₹${Math.round(topProductSales).toLocaleString('en-IN')} revenue</div>\n        </div>\n        \n        <div class=\"insight-card\">\n          <div class=\"insight-icon\">🌍</div>\n          <div class=\"insight-title\">Best Region</div>\n          <div class=\"insight-value\">${topRegion}</div>\n          <div class=\"insight-subtext\">₹${Math.round(topRegionSales).toLocaleString('en-IN')} revenue</div>\n        </div>\n        \n        <div class=\"insight-card\">\n          <div class=\"insight-icon\">${growth >= 0 ? '📈' : '📉'}</div>\n          <div class=\"insight-title\">Month-over-Month Growth</div>\n          <div class=\"insight-value ${growth >= 0 ? 'growth-positive' : 'growth-negative'}\">${growth >= 0 ? '+' : ''}${growth}%</div>\n          <div class=\"insight-subtext\">vs previous period</div>\n        </div>\n      </div>\n    </div>\n    \n    <!-- Charts Section -->\n    <div class=\"charts-section\">\n      <!-- Line Chart -->\n      <div class=\"chart-container\">\n        <h2>📈 Sales Trend Analysis</h2>\n        <img src=\"data:image/png;base64,${lineChartBase64}\" alt=\"Sales Trend\">\n      </div>\n      \n      <!-- Bar Chart and Pie Chart Side by Side -->\n      <div class=\"two-charts\">\n        <div class=\"chart-container\">\n          <h2>📊 Product Performance</h2>\n          <img src=\"data:image/png;base64,${barChartBase64}\" alt=\"Sales by Product\">\n        </div>\n        <div class=\"chart-container\">\n          <h2>🥧 Regional Distribution</h2>\n          <img src=\"data:image/png;base64,${pieChartBase64}\" alt=\"Sales by Region\">\n        </div>\n      </div>\n    </div>\n    \n    <!-- Detailed Data Table -->\n    <div class=\"table-wrapper\">\n      <h2 style=\"color: #333; margin-bottom: 15px;\">📋 Detailed Transaction Data</h2>\n      <table>\n        <thead>\n          <tr>\n            <th>Date</th>\n            <th>Product</th>\n            <th>Sales Amount</th>\n            <th>Quantity</th>\n            <th>Region</th>\n            <th>Customer Type</th>\n          </tr>\n        </thead>\n        <tbody>\n          ${(data.allItems || []).map(item => `\n            <tr>\n              <td>${item.Date ? new Date(item.Date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</td>\n              <td>${item.Product || 'N/A'}</td>\n              <td>₹${item.Sales ? parseFloat(item.Sales).toLocaleString('en-IN') : '0'}</td>\n              <td>${item.Quantity || 'N/A'}</td>\n              <td>${item.Region || 'N/A'}</td>\n              <td>${item.CustomerType || 'N/A'}</td>\n            </tr>\n          `).join('')}\n        </tbody>\n      </table>\n    </div>\n    \n    <!-- Footer -->\n    <div class=\"footer\">\n      <p>🤖 Automated Report System | Generated by n8n Workflow Automation</p>\n      <p>Report ID: ${Date.now()} | Confidential - For Internal Use Only</p>\n    </div>\n  </div>\n</body>\n</html>\n`;\n\nreturn {\n  json: {\n    html: html,\n    summary: {\n      totalSales: data.totalSales,\n      totalQty: data.totalQty,\n      recordCount: data.recordCount,\n      topProduct: topProduct,\n      topRegion: topRegion,\n      growth: growth\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2272,
+        144
+      ],
+      "id": "57ddd859-161e-4b92-b95b-788216e24e1d",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "chatId": "7731655447",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "📊 Sales Report Generated  📅 Date: 12/10/2025 💰 Total Sales: ₹2,820 📦 Total Qty: N/A 📈 Transactions: 20  Report generated automatically at 15:50"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3152,
+        144
+      ],
+      "id": "14f6de33-a804-4dc1-9060-b6d018482aca",
+      "name": "Send a document3",
+      "webhookId": "22747ac0-6888-46e5-8d60-e436df39d69f",
+      "credentials": {
+        "telegramApi": {
+          "id": "CcLmWHHDsU2Nk8Rx",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.pdf }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2688,
+        144
+      ],
+      "id": "ecedde68-d984-463d-aa2a-9aadd29dd0c0",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://quickchart.io/chart?c=' + encodeURIComponent(JSON.stringify({\n  type: 'line',\n  data: {\n    labels: $json.lineChart.labels,\n    datasets: [{\n      label: 'Sales (₹)',\n      data: $json.lineChart.data,\n      borderColor: '#2196F3',\n      backgroundColor: 'rgba(33, 150, 243, 0.2)',\n      borderWidth: 4,\n      fill: true,\n      tension: 0.4,\n      pointBackgroundColor: '#2196F3',\n      pointBorderColor: '#fff',\n      pointBorderWidth: 3,\n      pointRadius: 6\n    }]\n  },\n  options: {\n    title: {\n      display: true,\n      text: 'Sales Trend: ' + $json.lineChart.labels[0] + ' - ' + $json.lineChart.labels[$json.lineChart.labels.length - 1],\n      fontSize: 22,\n      fontColor: '#333'\n    },\n    legend: {\n      display: true,\n      labels: {\n        fontSize: 14,\n        fontColor: '#666'\n      }\n    },\n    scales: {\n      yAxes: [{\n        ticks: {\n          beginAtZero: true,\n          fontSize: 12,\n          fontColor: '#666'\n        },\n        gridLines: {\n          color: 'rgba(0, 0, 0, 0.1)'\n        }\n      }],\n      xAxes: [{\n        ticks: {\n          fontSize: 12,\n          fontColor: '#666'\n        },\n        gridLines: {\n          color: 'rgba(0, 0, 0, 0.1)'\n        }\n      }]\n    },\n    plugins: {\n      datalabels: {\n        display: false\n      }\n    }\n  }\n})) + '&width=800&height=400&backgroundColor=white' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "lineChartImage"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1360,
+        -48
+      ],
+      "id": "fcf0426b-593a-4aa2-a34e-024cc0df6d94",
+      "name": "HTTP Line Chart3"
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://quickchart.io/chart?c=' + encodeURIComponent(JSON.stringify({\n  type: 'bar',\n  data: {\n    labels: $json.barChart.labels,\n    datasets: [{\n      label: 'Revenue (₹)',\n      data: $json.barChart.data,\n      backgroundColor: [\n        'rgba(255, 99, 132, 0.8)',\n        'rgba(54, 162, 235, 0.8)',\n        'rgba(255, 206, 86, 0.8)',\n        'rgba(75, 192, 192, 0.8)',\n        'rgba(153, 102, 255, 0.8)'\n      ],\n      borderWidth: 2\n    }]\n  },\n  options: {\n    title: {\n      display: true,\n      text: 'Top Products by Revenue',\n      fontSize: 22,\n      fontColor: '#333'\n    },\n    legend: {\n      display: false\n    },\n    scales: {\n      yAxes: [{\n        ticks: {\n          beginAtZero: true,\n          fontSize: 12,\n          fontColor: '#666'\n        }\n      }],\n      xAxes: [{\n        ticks: {\n          fontSize: 12,\n          fontColor: '#666'\n        }\n      }]\n    }\n  }\n})) + '&width=800&height=400&backgroundColor=white' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "barChartImage"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1568,
+        -48
+      ],
+      "id": "c3d06d19-f8e6-477a-acd2-4295ef473069",
+      "name": "HTTP Bar Chart3"
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://quickchart.io/chart?c=' + encodeURIComponent(JSON.stringify({\n  type: 'doughnut',\n  data: {\n    labels: $json.pieChart.labels,\n    datasets: [{\n      data: $json.pieChart.data,\n      backgroundColor: [\n        'rgba(255, 99, 132, 0.8)',\n        'rgba(54, 162, 235, 0.8)',\n        'rgba(255, 206, 86, 0.8)',\n        'rgba(75, 192, 192, 0.8)'\n      ],\n      borderWidth: 3,\n      borderColor: '#fff'\n    }]\n  },\n  options: {\n    title: {\n      display: true,\n      text: 'Regional Market Share',\n      fontSize: 22,\n      fontColor: '#333'\n    },\n    legend: {\n      position: 'bottom',\n      labels: {\n        fontSize: 12,\n        fontColor: '#666',\n        padding: 15\n      }\n    }\n  }\n})) + '&width=500&height=400&backgroundColor=white' }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "pieChartImage"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1776,
+        -48
+      ],
+      "id": "f882804c-4ccf-423d-856d-b91ad6835caf",
+      "name": "HTTP Pie Chart3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://v2.api2pdf.com/chrome/html",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"html\": {{ JSON.stringify($json.html) }},\n  \"inline\": false,\n  \"fileName\": \"sales-report-{{ $now.format('YYYY-MM-DD') }}.pdf\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2480,
+        144
+      ],
+      "id": "2dd55b6e-d06c-4252-9a44-3b50dbb4e226",
+      "name": "HTTP Request8(API2PDF)3",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "hauFlrOOcXgtOSUd",
+          "name": "PDF Cred"
+        },
+        "httpBearerAuth": {
+          "id": "hmSc6MB3nUbIL4Q2",
+          "name": "Bearer Auth account"
+        },
+        "httpHeaderAuth": {
+          "id": "QLA62cyQysS8590F",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        768
+      ],
+      "id": "390c80ee-0cdd-4775-9f78-57ee2d4803c8",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1a-B4tKg7HNzuUWILzBeX8XY91V1sdKzIpSsgjx6qV4s",
+          "mode": "list",
+          "cachedResultName": "SalesData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a-B4tKg7HNzuUWILzBeX8XY91V1sdKzIpSsgjx6qV4s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1516036363,
+          "mode": "list",
+          "cachedResultName": "SalesData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a-B4tKg7HNzuUWILzBeX8XY91V1sdKzIpSsgjx6qV4s/edit#gid=1516036363"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1056,
+        768
+      ],
+      "id": "a7f3d9e0-c4ce-4388-b9c1-f2930c36a5cd",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tDA9uKDhtZEHDPUp",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all items from previous node\nconst items = $input.all();\n\n// Calculate totals\nlet totalSales = 0;\nlet totalQuantity = 0;\nlet salesSum = 0;\nlet count = 0;\n\n// Process each item\nitems.forEach(item => {\n  const sales = parseFloat(item.json.Sales) || 0;\n  const quantity = parseFloat(item.json.Quantity) || 0;\n  \n  totalSales += sales;\n  totalQuantity += quantity;\n  salesSum += sales;\n  count++;\n});\n\n// Calculate average\nconst avgSales = count > 0 ? salesSum / count : 0;\n\n// Return aggregated data\nreturn {\n  json: {\n    totalSales: totalSales,\n    totalQty: totalQuantity,\n    avgSales: avgSales,\n    recordCount: count,\n    allItems: items.map(i => i.json) // Keep all items for later use\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        768
+      ],
+      "id": "7076476b-877b-4b7d-874b-92b4b4d0201e",
+      "name": "Calculate Totals1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all items from Google Sheets\nconst allItems = $('Get row(s) in sheet1').all();\n\n// Get the calculated totals from previous node\nconst totals = $input.first().json;\n\n// 1. PREPARE DATA FOR LINE CHART (Sales Trend by Month)\nconst salesByMonth = {};\nallItems.forEach(item => {\n  const month = item.json.Month || 'Unknown';\n  const sales = parseFloat(item.json.Sales) || 0;\n  \n  if (!salesByMonth[month]) {\n    salesByMonth[month] = 0;\n  }\n  salesByMonth[month] += sales;\n});\n\nconst monthLabels = Object.keys(salesByMonth);\nconst monthSales = Object.values(salesByMonth);\n\n\n// 2. PREPARE DATA FOR BAR CHART (Sales by Product)\nconst salesByProduct = {};\nallItems.forEach(item => {\n  const product = item.json.Product || 'Unknown';\n  const sales = parseFloat(item.json.Sales) || 0;\n  \n  if (!salesByProduct[product]) {\n    salesByProduct[product] = 0;\n  }\n  salesByProduct[product] += sales;\n});\n\nconst productLabels = Object.keys(salesByProduct);\nconst productSales = Object.values(salesByProduct);\n\n\n// 3. PREPARE DATA FOR PIE CHART (Sales by Region)\nconst salesByRegion = {};\nallItems.forEach(item => {\n  const region = item.json.Region || 'Unknown';\n  const sales = parseFloat(item.json.Sales) || 0;\n  \n  if (!salesByRegion[region]) {\n    salesByRegion[region] = 0;\n  }\n  salesByRegion[region] += sales;\n});\n\nconst regionLabels = Object.keys(salesByRegion);\nconst regionSales = Object.values(salesByRegion);\n\n\n// Return all data for charts\nreturn {\n  json: {\n    // Chart data\n    lineChart: {\n      labels: monthLabels,\n      data: monthSales\n    },\n    barChart: {\n      labels: productLabels,\n      data: productSales\n    },\n    pieChart: {\n      labels: regionLabels,\n      data: regionSales\n    },\n    // Summary data from previous node\n    totalSales: totals.totalSales || 0,\n    avgSales: totals.avgSales || 0,\n    recordCount: totals.recordCount || 0,\n    // All items for table\n    allItems: allItems.map(i => i.json)\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        768
+      ],
+      "id": "6c0b4dac-4133-4251-a00d-2be470a575af",
+      "name": "Prepare Chart Data1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// WORKFLOW 1: ANALYSIS ONLY (NO CHARTS)\n// Pure text-based professional analysis\n// ========================================\n\n// This is the ONLY node you need to update!\n// Place this AFTER \"Generate Smart Analysis\" node\n// Connect directly to HTML to PDF\n\n// Get enriched data from Generate Smart Analysis\nconst data = $input.first().json;\nconst insights = data.insights;\n\n// Build professional analysis-only HTML\nconst html = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    * { margin: 0; padding: 0; box-sizing: border-box; }\n    body { \n      font-family: 'Segoe UI', Arial, sans-serif; \n      background: #f0f2f5;\n      padding: 0;\n      color: #333;\n      line-height: 1.6;\n    }\n    .container {\n      max-width: 900px;\n      margin: 0 auto;\n      background: white;\n    }\n    \n    @page {\n      size: A4;\n      margin: 12mm;\n    }\n    \n    .page-break {\n      page-break-before: always;\n    }\n    \n    .no-break {\n      page-break-inside: avoid;\n    }\n    \n    .header {\n      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n      color: white;\n      padding: 35px 30px;\n      text-align: center;\n      page-break-after: avoid;\n    }\n    .header h1 {\n      font-size: 34px;\n      margin-bottom: 8px;\n      font-weight: 700;\n    }\n    .header .subtitle {\n      font-size: 17px;\n      opacity: 0.95;\n      margin-bottom: 5px;\n    }\n    .header .timestamp {\n      font-size: 13px;\n      opacity: 0.8;\n      margin-top: 8px;\n    }\n    \n    /* Executive Summary */\n    .executive-summary {\n      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);\n      color: white;\n      padding: 25px 28px;\n      margin: 25px 28px;\n      border-radius: 10px;\n      box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);\n      page-break-inside: avoid;\n    }\n    .executive-summary h2 {\n      font-size: 22px;\n      margin-bottom: 12px;\n      font-weight: 600;\n    }\n    .executive-summary p {\n      font-size: 15px;\n      line-height: 1.7;\n      opacity: 0.95;\n    }\n    \n    /* Metrics Grid */\n    .metrics {\n      display: grid;\n      grid-template-columns: repeat(4, 1fr);\n      gap: 18px;\n      padding: 25px 28px;\n      background: #f8f9fa;\n      page-break-inside: avoid;\n      page-break-after: avoid;\n    }\n    .metric-card {\n      background: white;\n      padding: 22px 18px;\n      border-radius: 10px;\n      text-align: center;\n      box-shadow: 0 3px 10px rgba(0,0,0,0.08);\n      border-left: 5px solid #667eea;\n    }\n    .metric-value {\n      font-size: 30px;\n      font-weight: bold;\n      color: #667eea;\n      margin-bottom: 6px;\n    }\n    .metric-label {\n      font-size: 12px;\n      color: #6c757d;\n      text-transform: uppercase;\n      letter-spacing: 1px;\n      font-weight: 600;\n    }\n    \n    /* Insights Section - PAGE 2 */\n    .insights-section {\n      padding: 25px 28px;\n      background: white;\n      page-break-before: always;\n    }\n    .insights-section h2 {\n      color: #333;\n      margin-bottom: 20px;\n      font-size: 26px;\n      font-weight: 700;\n      border-bottom: 3px solid #667eea;\n      padding-bottom: 8px;\n    }\n    \n    .insight-card {\n      background: #f8f9fa;\n      padding: 22px;\n      margin-bottom: 18px;\n      border-radius: 10px;\n      border-left: 5px solid #4CAF50;\n      box-shadow: 0 2px 8px rgba(0,0,0,0.06);\n      page-break-inside: avoid;\n    }\n    .insight-card h3 {\n      color: #4CAF50;\n      margin-bottom: 10px;\n      font-size: 19px;\n      font-weight: 600;\n    }\n    .insight-card ul {\n      padding-left: 22px;\n      color: #333;\n    }\n    .insight-card li {\n      margin: 9px 0;\n      line-height: 1.6;\n      font-size: 14px;\n    }\n    .insight-card p {\n      color: #444;\n      line-height: 1.7;\n      font-size: 14px;\n    }\n    .insight-card.top {\n      border-left-color: #2196F3;\n    }\n    .insight-card.top h3 {\n      color: #2196F3;\n    }\n    .insight-card.attention {\n      border-left-color: #FF5722;\n    }\n    .insight-card.attention h3 {\n      color: #FF5722;\n    }\n    \n    /* Analytics Metrics - PAGE 3 */\n    .analytics-box {\n      background: #e8f4f8;\n      padding: 22px 28px;\n      margin: 25px 28px;\n      border-radius: 10px;\n      border: 2px solid #2196F3;\n      page-break-before: always;\n      page-break-inside: avoid;\n    }\n    .analytics-box h3 {\n      color: #2196F3;\n      margin-bottom: 15px;\n      font-size: 20px;\n    }\n    .analytics-grid {\n      display: grid;\n      grid-template-columns: repeat(3, 1fr);\n      gap: 15px;\n      margin-top: 15px;\n    }\n    .analytics-item {\n      background: white;\n      padding: 18px 12px;\n      border-radius: 8px;\n      text-align: center;\n    }\n    .analytics-item .value {\n      font-size: 19px;\n      font-weight: bold;\n      color: #2196F3;\n      margin-bottom: 5px;\n    }\n    .analytics-item .label {\n      font-size: 11px;\n      color: #666;\n      text-transform: uppercase;\n    }\n    \n    /* Recommendations */\n    .recommendations {\n      background: linear-gradient(135deg, #FA8BFF 0%, #2BD2FF 90%);\n      padding: 25px 28px;\n      margin: 25px 28px;\n      border-radius: 10px;\n      color: white;\n      box-shadow: 0 4px 15px rgba(250, 139, 255, 0.3);\n      page-break-inside: avoid;\n    }\n    .recommendations h2 {\n      font-size: 22px;\n      margin-bottom: 18px;\n      font-weight: 600;\n    }\n    .recommendations ol {\n      padding-left: 22px;\n    }\n    .recommendations li {\n      margin: 13px 0;\n      font-size: 15px;\n      line-height: 1.7;\n    }\n    \n    /* Conclusion - PAGE 4 */\n    .conclusion {\n      background: #2c3e50;\n      color: white;\n      padding: 25px 28px;\n      margin: 25px 28px;\n      border-radius: 10px;\n      box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);\n      page-break-before: always;\n      page-break-inside: avoid;\n    }\n    .conclusion h2 {\n      font-size: 22px;\n      margin-bottom: 12px;\n      color: #3498db;\n      font-weight: 600;\n    }\n    .conclusion p {\n      font-size: 15px;\n      line-height: 1.8;\n      opacity: 0.95;\n    }\n    \n    /* Footer */\n    .footer {\n      background: #f8f9fa;\n      padding: 22px;\n      text-align: center;\n      color: #6c757d;\n      border-top: 2px solid #e9ecef;\n      margin-top: 25px;\n    }\n    .footer p {\n      margin: 4px 0;\n      font-size: 12px;\n    }\n    .footer .report-id {\n      font-family: monospace;\n      color: #999;\n      margin-top: 8px;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <!-- PAGE 1: Header + Summary + Metrics -->\n    <div class=\"header\">\n      <h1>🎯 Sales Analysis Report</h1>\n      <p class=\"subtitle\">AI-Powered Business Intelligence</p>\n      <p class=\"timestamp\">Generated on ${new Date().toLocaleString('en-IN', { \n        dateStyle: 'full', \n        timeStyle: 'short' \n      })}</p>\n    </div>\n    \n    <div class=\"executive-summary\">\n      <h2>📊 Executive Summary</h2>\n      <p>${insights.executiveSummary}</p>\n    </div>\n    \n    <div class=\"metrics\">\n      <div class=\"metric-card\">\n        <div class=\"metric-value\">₹${Math.round(data.totalSales || 0).toLocaleString('en-IN')}</div>\n        <div class=\"metric-label\">Total Sales</div>\n      </div>\n      <div class=\"metric-card\">\n        <div class=\"metric-value\">${data.totalQty || 0}</div>\n        <div class=\"metric-label\">Total Quantity</div>\n      </div>\n      <div class=\"metric-card\">\n        <div class=\"metric-value\">₹${Math.round(data.avgSales || 0).toLocaleString('en-IN')}</div>\n        <div class=\"metric-label\">Average Sale</div>\n      </div>\n      <div class=\"metric-card\">\n        <div class=\"metric-value\">${data.recordCount || 0}</div>\n        <div class=\"metric-label\">Transactions</div>\n      </div>\n    </div>\n    \n    <!-- PAGE 2: Key Insights -->\n    <div class=\"insights-section\">\n      <h2>🎯 Key Insights & Analysis</h2>\n      \n      <div class=\"insight-card\">\n        <h3>📈 Key Observations</h3>\n        <ul>\n          ${insights.keyInsights.map(insight => `<li>${insight}</li>`).join('')}\n        </ul>\n      </div>\n      \n      <div class=\"insight-card top\">\n        <h3>🏆 Top Performer Analysis</h3>\n        <p>${insights.topPerformer}</p>\n      </div>\n      \n      <div class=\"insight-card attention\">\n        <h3>⚠️ Area Requiring Attention</h3>\n        <p>${insights.needsAttention}</p>\n      </div>\n    </div>\n    \n    <!-- PAGE 3: Analytics + Recommendations -->\n    <div class=\"analytics-box\">\n      <h3>📊 Advanced Analytics Metrics</h3>\n      <div class=\"analytics-grid\">\n        <div class=\"analytics-item\">\n          <div class=\"value\">${data.analytics.trendDirection}</div>\n          <div class=\"label\">Trend Direction</div>\n        </div>\n        <div class=\"analytics-item\">\n          <div class=\"value\">${data.analytics.trendMagnitude}%</div>\n          <div class=\"label\">Growth Rate</div>\n        </div>\n        <div class=\"analytics-item\">\n          <div class=\"value\">${data.analytics.momentum}</div>\n          <div class=\"label\">Momentum</div>\n        </div>\n        <div class=\"analytics-item\">\n          <div class=\"value\">${data.analytics.paretoRatio}</div>\n          <div class=\"label\">Pareto Ratio</div>\n        </div>\n        <div class=\"analytics-item\">\n          <div class=\"value\">${data.analytics.regionalBalance}</div>\n          <div class=\"label\">Balance</div>\n        </div>\n        <div class=\"analytics-item\">\n          <div class=\"value\">${data.analytics.concentrationRisk}</div>\n          <div class=\"label\">Risk Level</div>\n        </div>\n      </div>\n    </div>\n    \n    <div class=\"recommendations\">\n      <h2>💡 Strategic Recommendations</h2>\n      <ol>\n        ${insights.recommendations.map(rec => `<li>${rec}</li>`).join('')}\n      </ol>\n    </div>\n    \n    <!-- PAGE 4: Conclusion -->\n    <div class=\"conclusion\">\n      <h2>📌 Overall Conclusion</h2>\n      <p>${insights.conclusion}</p>\n    </div>\n    \n    <div class=\"footer\">\n      <p><strong>🤖 Automated Analysis System</strong></p>\n      <p>Generated by n8n Workflow Automation + Enhanced Smart Analysis Engine</p>\n      <p class=\"report-id\">Report ID: ${Date.now()} | Confidential - Internal Use Only</p>\n    </div>\n  </div>\n</body>\n</html>\n`;\n\nreturn {\n  json: {\n    html: html,\n    summary: {\n      totalSales: data.totalSales,\n      avgSales: data.avgSales,\n      recordCount: data.recordCount,\n      reportType: 'Analysis Only',\n      generatedAt: new Date().toISOString()\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2288,
+        880
+      ],
+      "id": "3bcc2880-d52b-48d0-a0cb-e14348bd283e",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "chatId": "7731655447",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "📊 Sales Report Generated  📅 Date: 12/10/2025 💰 Total Sales: ₹2,820 📦 Total Qty: N/A 📈 Transactions: 20  Report generated automatically at 15:50"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3856,
+        960
+      ],
+      "id": "76ac19ea-df30-49c3-9188-ffae2ed700ae",
+      "name": "Send a document1",
+      "webhookId": "22747ac0-6888-46e5-8d60-e436df39d69f",
+      "credentials": {
+        "telegramApi": {
+          "id": "CcLmWHHDsU2Nk8Rx",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.pdf }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3504,
+        960
+      ],
+      "id": "698b491f-f8c8-4d31-8310-f75b0f29daf5",
+      "name": "HTTP Request9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://v2.api2pdf.com/chrome/html",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"html\": {{ JSON.stringify($json.html) }},\n  \"inline\": false,\n  \"fileName\": \"sales-report-{{ $now.format('YYYY-MM-DD') }}.pdf\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2800,
+        912
+      ],
+      "id": "53fa5d1a-889a-4e59-acb2-3e79cb2358ee",
+      "name": "HTTP Request8(API2PDF)",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "hauFlrOOcXgtOSUd",
+          "name": "PDF Cred"
+        },
+        "httpBearerAuth": {
+          "id": "hmSc6MB3nUbIL4Q2",
+          "name": "Bearer Auth account"
+        },
+        "httpHeaderAuth": {
+          "id": "QLA62cyQysS8590F",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// ENHANCED FREE ANALYSIS - PROFESSIONAL GRADE\n// Works with ANY data, NEW or RECURRING reports\n// ========================================\n\nconst data = $input.first().json;\nconst items = data.allItems;\n\n// ========================================\n// STEP 1: AUTO-DETECT DATA STRUCTURE\n// ========================================\n\nconst sampleItem = items[0];\nconst allColumns = Object.keys(sampleItem);\n\n// Auto-detect VALUE column (Sales, Amount, Revenue, Value, Quantity, Price)\nconst valueColumn = allColumns.find(col => {\n  const lower = col.toLowerCase();\n  return lower.includes('sales') || lower.includes('amount') || \n         lower.includes('revenue') || lower.includes('value') || \n         lower.includes('price') || lower.includes('total');\n}) || allColumns.find(col => !isNaN(parseFloat(sampleItem[col])));\n\n// Auto-detect CATEGORY columns\nconst categoryColumns = allColumns.filter(col => {\n  const lower = col.toLowerCase();\n  const value = sampleItem[col];\n  return (lower.includes('product') || lower.includes('client') || \n          lower.includes('item') || lower.includes('category') || \n          lower.includes('type') || lower.includes('name') ||\n          lower.includes('service') || lower.includes('status')) &&\n         typeof value === 'string';\n});\n\n// Auto-detect REGION/LOCATION column\nconst locationColumn = allColumns.find(col => {\n  const lower = col.toLowerCase();\n  return lower.includes('region') || lower.includes('location') || \n         lower.includes('area') || lower.includes('zone') ||\n         lower.includes('city') || lower.includes('warehouse');\n});\n\n// Auto-detect TIME column\nconst timeColumn = allColumns.find(col => {\n  const lower = col.toLowerCase();\n  return lower.includes('month') || lower.includes('date') || \n         lower.includes('period') || lower.includes('week') ||\n         lower.includes('time') || lower.includes('day');\n});\n\n// Auto-detect PRIORITY/STATUS column\nconst priorityColumn = allColumns.find(col => {\n  const lower = col.toLowerCase();\n  return lower.includes('priority') || lower.includes('status') ||\n         lower.includes('stage') || lower.includes('level');\n});\n\n// ========================================\n// STEP 2: CALCULATE CORE METRICS\n// ========================================\n\n// Using existing chart data for main analysis\nconst chart1Label = data.lineChart.labels[0] ? 'Time Period' : 'Period';\nconst chart2Label = categoryColumns[0] || 'Category';\nconst chart3Label = locationColumn || categoryColumns[1] || 'Segment';\n\nconst trendData = data.lineChart.data;\nconst chart2Data = data.barChart.data;\nconst chart3Data = data.pieChart.data;\n\n// ========================================\n// STEP 3: TREND ANALYSIS (Within current dataset)\n// ========================================\n\nconst firstValue = trendData[0];\nconst lastValue = trendData[trendData.length - 1];\nconst midValue = trendData[Math.floor(trendData.length / 2)];\n\nconst overallTrend = lastValue > firstValue ? 'increasing' : 'decreasing';\nconst trendPercent = firstValue !== 0 \n  ? Math.abs(((lastValue - firstValue) / firstValue) * 100).toFixed(1)\n  : 0;\n\n// Detect acceleration/deceleration\nconst firstHalfAvg = trendData.slice(0, Math.floor(trendData.length / 2))\n  .reduce((a, b) => a + b, 0) / Math.floor(trendData.length / 2);\nconst secondHalfAvg = trendData.slice(Math.floor(trendData.length / 2))\n  .reduce((a, b) => a + b, 0) / Math.ceil(trendData.length / 2);\nconst momentum = secondHalfAvg > firstHalfAvg ? 'accelerating' : 'decelerating';\n\n// ========================================\n// STEP 4: PERFORMANCE RANKING & SEGMENTATION\n// ========================================\n\n// Rank performers in Chart 2 (Products/Clients/Categories)\nconst chart2WithLabels = data.barChart.labels.map((label, i) => ({\n  name: label,\n  value: chart2Data[i],\n  percent: ((chart2Data[i] / data.totalSales) * 100).toFixed(1)\n})).sort((a, b) => b.value - a.value);\n\nconst topPerformer = chart2WithLabels[0];\nconst secondBest = chart2WithLabels[1];\nconst thirdBest = chart2WithLabels[2];\nconst needsAttention = chart2WithLabels[chart2WithLabels.length - 1];\n\n// Calculate top 3 concentration\nconst top3Total = (topPerformer.value + secondBest.value + thirdBest.value);\nconst top3Percent = ((top3Total / data.totalSales) * 100).toFixed(1);\n\n// ========================================\n// STEP 5: PARETO ANALYSIS (80/20 Rule)\n// ========================================\n\nlet cumulativeValue = 0;\nlet pareto80Count = 0;\nfor (let i = 0; i < chart2WithLabels.length; i++) {\n  cumulativeValue += chart2WithLabels[i].value;\n  pareto80Count++;\n  if (cumulativeValue >= data.totalSales * 0.8) break;\n}\nconst pareto80Percent = ((pareto80Count / chart2WithLabels.length) * 100).toFixed(0);\n\n// ========================================\n// STEP 6: REGIONAL/SEGMENT ANALYSIS\n// ========================================\n\nconst chart3WithLabels = data.pieChart.labels.map((label, i) => ({\n  name: label,\n  value: chart3Data[i],\n  percent: ((chart3Data[i] / data.totalSales) * 100).toFixed(1)\n})).sort((a, b) => b.value - a.value);\n\nconst topRegion = chart3WithLabels[0];\nconst weakestRegion = chart3WithLabels[chart3WithLabels.length - 1];\n\n// Calculate regional balance (coefficient of variation)\nconst regionMean = data.totalSales / chart3Data.length;\nconst regionVariance = chart3Data.reduce((sum, val) => \n  sum + Math.pow(val - regionMean, 2), 0) / chart3Data.length;\nconst regionCV = Math.sqrt(regionVariance) / regionMean;\nconst balanceLevel = regionCV < 0.3 ? 'well-balanced' : \n                     regionCV < 0.6 ? 'moderately balanced' : 'highly concentrated';\n\n// ========================================\n// STEP 7: ANOMALY DETECTION\n// ========================================\n\n// Detect unusual spikes/drops in trend data\nconst trendMean = trendData.reduce((a, b) => a + b, 0) / trendData.length;\nconst trendStdDev = Math.sqrt(\n  trendData.reduce((sum, val) => sum + Math.pow(val - trendMean, 2), 0) / trendData.length\n);\n\nconst anomalies = [];\ntrendData.forEach((val, i) => {\n  const zScore = Math.abs((val - trendMean) / trendStdDev);\n  if (zScore > 2) { // More than 2 standard deviations\n    anomalies.push({\n      period: data.lineChart.labels[i],\n      value: val,\n      type: val > trendMean ? 'spike' : 'drop',\n      deviation: ((Math.abs(val - trendMean) / trendMean) * 100).toFixed(1)\n    });\n  }\n});\n\n// ========================================\n// STEP 8: PERFORMANCE SEGMENTATION\n// ========================================\n\n// Categorize into High/Medium/Low performers\nconst threshold75 = data.totalSales * 0.75 / chart2Data.length;\nconst threshold25 = data.totalSales * 0.25 / chart2Data.length;\n\nconst highPerformers = chart2WithLabels.filter(item => item.value > threshold75);\nconst mediumPerformers = chart2WithLabels.filter(item => \n  item.value <= threshold75 && item.value >= threshold25);\nconst lowPerformers = chart2WithLabels.filter(item => item.value < threshold25);\n\n// ========================================\n// STEP 9: GROWTH INDICATORS (Within dataset)\n// ========================================\n\n// Compare first period vs last period\nconst firstPeriodAvg = trendData.slice(0, 2).reduce((a, b) => a + b, 0) / 2;\nconst lastPeriodAvg = trendData.slice(-2).reduce((a, b) => a + b, 0) / 2;\nconst internalGrowth = ((lastPeriodAvg - firstPeriodAvg) / firstPeriodAvg * 100).toFixed(1);\n\n// ========================================\n// STEP 10: GENERATE EXECUTIVE SUMMARY\n// ========================================\n\nconst executiveSummary = `Performance analysis of ${data.recordCount} transactions reveals ${overallTrend} trend with ${trendPercent}% ${overallTrend === 'increasing' ? 'growth' : 'decline'}, ${momentum} in recent periods. Total ${valueColumn || 'value'} of ₹${Math.round(data.totalSales).toLocaleString('en-IN')} generated with ₹${Math.round(data.avgSales).toLocaleString('en-IN')} average transaction value. ${topPerformer.name} leads ${chart2Label} performance commanding ${topPerformer.percent}% market share, while ${topRegion.name} dominates ${chart3Label} distribution with ${topRegion.percent}% contribution. Market concentration shows ${pareto80Percent}% of ${chart2Label} driving 80% of results (Pareto principle).`;\n\n// ========================================\n// STEP 11: GENERATE KEY INSIGHTS\n// ========================================\n\nconst keyInsights = [\n  `${overallTrend === 'increasing' ? '📈 Positive momentum' : '📉 Performance decline'}: ${overallTrend} by ${trendPercent}% with ${momentum} trend in latter half`,\n  \n  `🏆 ${topPerformer.name} dominates with ${topPerformer.percent}% share (₹${Math.round(topPerformer.value).toLocaleString('en-IN')}), followed by ${secondBest.name} at ${secondBest.percent}%`,\n  \n  `${chart3Label} distribution is ${balanceLevel} - ${topRegion.name} leads at ${topRegion.percent}%, ${weakestRegion.name} trails at ${weakestRegion.percent}%`,\n  \n  anomalies.length > 0 \n    ? `⚠️ ${anomalies.length} significant ${anomalies.length > 1 ? 'anomalies' : 'anomaly'} detected: ${anomalies[0].type} of ${anomalies[0].deviation}% in ${anomalies[0].period}`\n    : `✅ Performance stable with no significant anomalies detected`,\n  \n  `📊 Top 3 ${chart2Label} contribute ${top3Percent}% of total, indicating ${top3Percent > 60 ? 'high concentration risk' : 'healthy diversification'}`\n];\n\n// ========================================\n// STEP 12: TOP PERFORMER ANALYSIS\n// ========================================\n\nconst topPerformerAnalysis = `${topPerformer.name} leads the ${chart2Label} category with ₹${Math.round(topPerformer.value).toLocaleString('en-IN')}, representing ${topPerformer.percent}% of total ${valueColumn || 'value'}. This ${topPerformer.percent > 30 ? 'dominant' : 'strong'} position makes it a critical driver of overall performance. ${secondBest.name} (${secondBest.percent}%) and ${thirdBest.name} (${thirdBest.percent}%) complete the top tier, collectively accounting for ${top3Percent}% of results. Strategic focus on these key performers can yield ${top3Percent > 60 ? 'significant' : 'substantial'} returns with concentrated effort.`;\n\n// ========================================\n// STEP 13: NEEDS ATTENTION ANALYSIS\n// ========================================\n\nconst needsAttentionAnalysis = `${needsAttention.name} shows the weakest performance in ${chart2Label} category with ₹${Math.round(needsAttention.value).toLocaleString('en-IN')} (${needsAttention.percent}% share), indicating ${needsAttention.percent < 5 ? 'critical underperformance' : 'suboptimal results'}. ${lowPerformers.length > 1 ? `Along with ${lowPerformers.length - 1} other low performers, this` : 'This'} segment requires immediate strategic intervention. Gap analysis shows ${((topPerformer.value - needsAttention.value) / needsAttention.value * 100).toFixed(0)}x performance differential versus top performer, suggesting significant improvement potential through targeted initiatives.`;\n\n// ========================================\n// STEP 14: STRATEGIC RECOMMENDATIONS\n// ========================================\n\nconst recommendations = [\n  `Maximize ROI by allocating 60% of resources to top 3 performers (${topPerformer.name}, ${secondBest.name}, ${thirdBest.name}) which drive ${top3Percent}% of revenue`,\n  \n  `Implement turnaround strategy for ${needsAttention.name} ${lowPerformers.length > 1 ? `and ${lowPerformers.length - 1} other underperformers` : ''} with performance improvement target of ${Math.round(threshold25 / needsAttention.value * 100 - 100)}% to reach baseline`,\n  \n  `${regionCV > 0.5 ? `Address regional imbalance by replicating ${topRegion.name} success factors in ${weakestRegion.name} (potential ₹${Math.round((topRegion.value - weakestRegion.value) * 0.5).toLocaleString('en-IN')} opportunity)` : `Maintain balanced regional distribution while scaling ${topRegion.name} operations`}`,\n  \n  overallTrend === 'increasing' \n    ? `Sustain ${momentum} growth momentum through continued investment in proven strategies and gradual capacity expansion`\n    : `Urgent: Deploy corrective measures to reverse ${trendPercent}% decline - conduct root cause analysis and implement recovery plan within 2 weeks`,\n  \n  anomalies.length > 0\n    ? `Investigate ${anomalies[0].period} ${anomalies[0].type} (${anomalies[0].deviation}% deviation) to identify success factors or prevent recurrence`\n    : `Establish monitoring framework to detect early warning signals and maintain current stability`\n];\n\n// ========================================\n// STEP 15: OVERALL CONCLUSION\n// ========================================\n\nconst conclusion = `Comprehensive analysis indicates ${overallTrend === 'increasing' ? 'positive trajectory' : 'performance challenges requiring immediate attention'} with clear stratification across ${chart2Label} segments. ${topPerformer.name}'s ${topPerformer.percent}% dominance and ${topRegion.name}'s ${topRegion.percent}% regional leadership demonstrate proven success patterns that should be leveraged. However, ${pareto80Percent}% concentration in top performers ${pareto80Percent < 40 ? 'indicates healthy diversification' : 'presents concentration risk requiring mitigation'}. ${overallTrend === 'increasing' ? `With ${momentum} momentum and ${internalGrowth > 0 ? internalGrowth + '%' : 'stable'} internal growth, strategic focus on scaling successes while nurturing underperformers will optimize portfolio performance.` : `Declining ${trendPercent}% trend with ${lowPerformers.length} underperforming segments demands immediate strategic intervention combining defensive measures (cost optimization, efficiency gains) with offensive tactics (market expansion, product innovation). Recovery timeline: 4-6 weeks with focused execution.`} Key success factors: ${top3Percent > 60 ? 'diversify revenue base' : 'maintain current balance'}, strengthen ${weakestRegion.name} region, and ${overallTrend === 'increasing' ? 'capitalize on growth momentum' : 'execute turnaround plan with urgency'}.`;\n\n// ========================================\n// STEP 16: RETURN ENRICHED DATA\n// ========================================\n\nreturn {\n  json: {\n    // Pass through all original data\n    ...data,\n    \n    // Add comprehensive insights\n    insights: {\n      executiveSummary: executiveSummary,\n      keyInsights: keyInsights,\n      topPerformer: topPerformerAnalysis,\n      needsAttention: needsAttentionAnalysis,\n      recommendations: recommendations,\n      conclusion: conclusion\n    },\n    \n    // Add detailed metrics for reference\n    analytics: {\n      trendDirection: overallTrend,\n      trendMagnitude: trendPercent,\n      momentum: momentum,\n      topPerformers: highPerformers.map(p => p.name),\n      underperformers: lowPerformers.map(p => p.name),\n      paretoRatio: `${pareto80Percent}% drive 80%`,\n      regionalBalance: balanceLevel,\n      anomaliesDetected: anomalies.length,\n      concentrationRisk: top3Percent > 60 ? 'High' : top3Percent > 40 ? 'Medium' : 'Low'\n    },\n    \n    // Add detected columns for debugging\n    detectedColumns: {\n      valueColumn: valueColumn,\n      categoryColumn: chart2Label,\n      locationColumn: chart3Label,\n      timeColumn: chart1Label\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1648,
+        768
+      ],
+      "id": "5c15907a-c321-4003-9e71-a21d522da5a4",
+      "name": "Generate Smart Analysis"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger3": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet3": {
+      "main": [
+        [
+          {
+            "node": "Calculate Totals3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Totals3": {
+      "main": [
+        [
+          {
+            "node": "Prepare Chart Data3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Chart Data3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Line Chart3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request8(API2PDF)3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Send a document3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Line Chart3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Bar Chart3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "HTTP Bar Chart3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Pie Chart3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Pie Chart3": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request8(API2PDF)3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Calculate Totals1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Totals1": {
+      "main": [
+        [
+          {
+            "node": "Prepare Chart Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Chart Data1": {
+      "main": [
+        [
+          {
+            "node": "Generate Smart Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request8(API2PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request9": {
+      "main": [
+        [
+          {
+            "node": "Send a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request8(API2PDF)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Smart Analysis": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8b295936-d0ed-461a-a934-55437f00df02",
+  "meta": {
+    "instanceId": "164e74a7fd177bc4a6e55832678446669b60e3bbf095ed06e8d0e872863ad807"
+  },
+  "id": "FJZvdSkdp6OwdNfa",
+  "tags": []
+}
